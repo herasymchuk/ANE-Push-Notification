@@ -46,11 +46,7 @@ public class LocalNotificationFunction implements FREFunction {
 	private static int RECURRENCE_YEAR = 4;
 	
 	private static int DEFAULT_NOTIFICATION_ID = 192837;
-	
-	/**
-	 * Doesn't do anything for now. just to ensure iOS compatibility. 
-	 *
-	 */
+
 	public FREObject call(FREContext arg0, FREObject[] arg1) {
 
 		if(Build.MANUFACTURER.equals("Amazon")) {
@@ -61,6 +57,7 @@ public class LocalNotificationFunction implements FREFunction {
 		String message = null;
 		long timestamp = 0;
 		String title = null;
+		String params = null;
 		int recurrenceType = RECURRENCE_NONE;
 		int notificationId = DEFAULT_NOTIFICATION_ID;
 		
@@ -72,9 +69,13 @@ public class LocalNotificationFunction implements FREFunction {
 			{
 				recurrenceType = arg1[3].getAsInt();
 			}
-			if (arg1.length == 5)
+			if (arg1.length >= 5)
 			{
-				notificationId = arg1[4].getAsInt();
+				params = arg1[4].getAsString();
+			}
+			if (arg1.length == 6)
+			{
+				notificationId = arg1[5].getAsInt();
 			}
 			
 		} catch (IllegalStateException e) {
@@ -88,10 +89,13 @@ public class LocalNotificationFunction implements FREFunction {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
-		
-		if (message != null && timestamp > 0)
+
+		Log.d(TAG, "message: " + message + " time: " + timestamp + " title: " + title + " recurrenceType: " + recurrenceType + "notificationId: " + notificationId);
+
+		if(message == null) {
+			message = "!!!!!!!!!!!!!!!!!";
+		}
+		if (timestamp > 0)
 		{
 			Context appContext = arg0.getActivity().getApplicationContext();
 			timestamp *= 1000; // convert in ms
@@ -107,6 +111,10 @@ public class LocalNotificationFunction implements FREFunction {
 			if (title != null)
 			{
 				intent.putExtra("contentTitle", title);
+			}
+			if (params != null)
+			{
+				intent.putExtra("parameters", params);
 			}
 			intent.putExtra("contentText", message);
 			
@@ -133,7 +141,7 @@ public class LocalNotificationFunction implements FREFunction {
 			{
 				am.set(AlarmManager.RTC_WAKEUP, timestamp, sender);
 			}
-			Log.d(TAG, "setting params to run at "+Long.toString(timestamp));
+			Log.d(TAG, "setting params to run at " + Long.toString(timestamp));
 
 		} else
 		{

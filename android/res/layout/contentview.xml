@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="64dp"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
     android:background="#ff111111" >
 
     <ImageView
@@ -24,13 +24,12 @@
     <TextView
         android:id="@+id/contentviewtext"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:layout_below="@id/contentviewtitle"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_toRightOf="@id/contentviewimage"
-        android:ellipsize="end"
-        android:singleLine="true"
         android:textAppearance="@style/text" />
 
     <TextView
@@ -43,13 +42,13 @@
         android:layout_marginRight="5dp"
         android:layout_marginTop="12dp" />
 
-    <ImageView
+    <!--ImageView
         android:id="@+id/contentviewsmalllogo"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginTop="5dp"
         android:layout_marginRight="5dp"
         android:layout_below="@id/contentviewtime"
-        android:layout_alignParentRight="true" />
+        android:layout_alignParentRight="true" /-->
 
 </RelativeLayout>

@@ -7,16 +7,20 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "FlashRuntimeExtensions.h"
 
 @interface StarterNotificationChecker : NSObject
 + (void)load;
 
 + (void) createStarterNotificationChecker:(NSNotification*) notification;
+//+ (void) ADEPDidReceiveLocalNotification :(NSNotification*)notification;
 
 + (BOOL) applicationStartedWithNotification;
 
 + (NSDictionary*) getStarterNotification;
 
 + (void) deleteStarterNotification;
+
++ (void) setCtx:(FREContext)ctx;
 
 @end

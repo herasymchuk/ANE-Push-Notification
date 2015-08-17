@@ -33,7 +33,6 @@ import com.adobe.fre.FREObject;
 public class SetBadgeValueFunction implements FREFunction {
 
 	public FREObject call(FREContext arg0, FREObject[] arg1) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

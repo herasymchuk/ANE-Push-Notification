@@ -32,20 +32,18 @@ import android.widget.RemoteViews;
 
 import com.distriqt.extension.util.Resources;
 
-public class MultiMsgNotification //extends Activity
+public class MultiMsgNotification
 {
 
 	private String TAG = "MultiMsgNotification";
+	private static int UNCHECKED_NOTIFICATION_COUNTER = 10000;
 
 	/**
-	 * chatList is the storage of all the chats already displayed in the
+	 * chatList is the storage of all the notifications already displayed in the
 	 * notification center.
 	 * 
-	 * key: chatID - String value: the number of unread messages correspondent
-	 * to the chatID - Integer
-	 * 
 	 */
-	private Map<String, ChatListItem> _chatList;
+	private Map<Integer, ChatListItem> _nList;
 	private class ChatListItem
 	{
 		public String contentText;
@@ -87,7 +85,7 @@ public class MultiMsgNotification //extends Activity
 
 	public void initialize()
 	{
-		_chatList = new HashMap<String, ChatListItem>();
+		_nList = new HashMap<Integer, ChatListItem>();
 
 		_bigContentView = new RemoteViews(_mContext.getPackageName(), Resources.getResourseIdByName(_mContext.getPackageName(),
 				"layout", "bigcontentview"));
@@ -104,59 +102,65 @@ public class MultiMsgNotification //extends Activity
 	 * "330012"}
 	 * 
 	 * @param intent
-	 * @return boolean value to indicate if it's already existed in chatList
 	 */
 	private void addToChatList(Intent intent)
 	{
-		String chatID = "";
-		ChatListItem chatListItem = new ChatListItem();
+		Integer nID = -1;
+		ChatListItem nListItem = new ChatListItem();
 
-		if (intent.hasExtra("group"))
-		{
-			chatID = "group_" + intent.getStringExtra("group");
-		} else
-		{
-			chatID = "duo_" + intent.getStringExtra("sender");
+		if (intent.hasExtra("pushId")){
+			nID = Integer.parseInt(intent.getStringExtra("pushId"));
 		}
 
-		if (_chatList.containsKey(chatID))
+		String rType = "";
+		if (intent.hasExtra("repType")){
+			rType = intent.getStringExtra("repType");
+		}
+
+		if(rType.equals("0")) {
+			nID = UNCHECKED_NOTIFICATION_COUNTER;
+			UNCHECKED_NOTIFICATION_COUNTER++;
+		}
+
+		if (rType.equals("2") && _nList.containsKey(nID))
 		{
-			chatListItem = _chatList.get(chatID);
-			chatListItem.contentText = intent.getStringExtra("contentText").toString();
-			chatListItem.contentTitle = intent.getStringExtra("contentTitle").toString();
-			chatListItem.nbMsgInChat++;
-			chatListItem.pictureUrl = getPictureUrl(intent);
-			chatListItem.timeOfMsg = getTimeFromMessage(intent);
-			chatListItem.msgList.add(chatListItem.contentText);
+			nListItem = _nList.get(nID);
+			nListItem.contentText = intent.getStringExtra("contentText").toString();
+			nListItem.contentTitle = intent.getStringExtra("contentTitle").toString();
+			nListItem.nbMsgInChat++;
+			nListItem.pictureUrl = getPictureUrl(intent);
+			nListItem.timeOfMsg = getTimeFromMessage(intent);
+			nListItem.msgList.add(nListItem.contentText);
 
 			// increase the order of other chats
-			for (String tempKey : _chatList.keySet())
+			for (Integer tempKey : _nList.keySet())
 			{
-				ChatListItem tempValue = _chatList.get(tempKey);
-				if (tempValue.orderInList < chatListItem.orderInList)
+				ChatListItem tempValue = _nList.get(tempKey);
+				if (tempValue.orderInList < nListItem.orderInList)
 					tempValue.orderInList++;
-				_chatList.put(tempKey, tempValue);
+				_nList.put(tempKey, tempValue);
 			}
 		} else
 		{
-			chatListItem.contentText = intent.getStringExtra("contentText").toString();
-			chatListItem.contentTitle = intent.getStringExtra("contentTitle").toString();
-			chatListItem.nbMsgInChat = 1;
-			chatListItem.pictureUrl = getPictureUrl(intent);
-			chatListItem.timeOfMsg = getTimeFromMessage(intent);
-			chatListItem.msgList.add(chatListItem.contentText);
+
+			nListItem.contentText = intent.getStringExtra("contentText").toString();
+			nListItem.contentTitle = intent.getStringExtra("contentTitle").toString();
+			nListItem.nbMsgInChat = 1;
+			nListItem.pictureUrl = getPictureUrl(intent);
+			nListItem.timeOfMsg = getTimeFromMessage(intent);
+			nListItem.msgList.add(nListItem.contentText);
 
 			// increase the order of other chats
-			for (String tempKey : _chatList.keySet())
+			for (Integer tempKey : _nList.keySet())
 			{
-				ChatListItem tempValue = _chatList.get(tempKey);
+				ChatListItem tempValue = _nList.get(tempKey);
 				tempValue.orderInList++;
-				_chatList.put(tempKey, tempValue);
+				_nList.put(tempKey, tempValue);
 			}
 		}
 
-		chatListItem.orderInList = 1;
-		_chatList.put(chatID, chatListItem);
+		nListItem.orderInList = 1;
+		_nList.put(nID, nListItem);
 	}
 
 	private String getTimeFromMessage(Intent intent)
@@ -233,7 +237,7 @@ public class MultiMsgNotification //extends Activity
 	private int getNbTotalMsg()
 	{
 		int nbTotalMsg = 0;
-		for (ChatListItem temp : _chatList.values())
+		for (ChatListItem temp : _nList.values())
 		{
 			nbTotalMsg += temp.nbMsgInChat;
 		}
@@ -242,7 +246,7 @@ public class MultiMsgNotification //extends Activity
 
 	private int getNbTotalChat()
 	{
-		return _chatList.size();
+		return _nList.size();
 	}
 	
 
@@ -252,8 +256,8 @@ public class MultiMsgNotification //extends Activity
 		addToChatList(intent);
 
 		CharSequence tickerText = intent.getStringExtra("tickerText");
-		Bitmap largeicon = BitmapFactory.decodeResource(context.getResources(), Resources.getResourseIdByName(context.getPackageName(), "drawable", "icon72"));
-		largeicon = Bitmap.createScaledBitmap(largeicon, largeicon.getWidth()/2, largeicon.getHeight()/2, true);
+		Bitmap largeIcon = BitmapFactory.decodeResource(context.getResources(), Resources.getResourseIdByName(context.getPackageName(), "drawable", "icon72"));
+		largeIcon = Bitmap.createScaledBitmap(largeIcon, largeIcon.getWidth()/2, largeIcon.getHeight()/2, true);
 		
 		Intent notificationIntent = null;
 		PendingIntent contentIntent = null;
@@ -270,7 +274,7 @@ public class MultiMsgNotification //extends Activity
 		Vibrator v = (Vibrator) _mContext.getSystemService(Context.VIBRATOR_SERVICE);
 		v.vibrate(100); // vibrate 100 ms
 
-		Collection<ChatListItem> chatListItemCollection = _chatList.values();
+		Collection<ChatListItem> chatListItemCollection = _nList.values();
 		
 		if (nbTotalChat == 1)
 		{
@@ -289,13 +293,13 @@ public class MultiMsgNotification //extends Activity
 						contentTitle);
 				_contentView.setTextViewText(Resources.getResourseIdByName(context.getPackageName(), "id", "contentviewtime"),
 						item1.timeOfMsg);
-				_contentView.setImageViewResource(Resources.getResourseIdByName(context.getPackageName(), "id", "contentviewsmalllogo"),
-						Resources.getResourseIdByName(context.getPackageName(), "drawable", "status_icon24"));
+//				_contentView.setImageViewResource(Resources.getResourseIdByName(context.getPackageName(), "id", "contentviewsmalllogo"),
+//						Resources.getResourseIdByName(context.getPackageName(), "drawable", "status_icon24"));
 				
 				_notification = new NotificationCompat.Builder(context).setTicker(tickerText).setContentTitle(item1.contentTitle)
 						.setContentText(item1.contentText)
-						.setLargeIcon(largeicon)
-						.setSmallIcon(Resources.getResourseIdByName(context.getPackageName(), "drawable", "status_icon24"))
+						//.setLargeIcon(largeIcon)
+						.setSmallIcon(Resources.getResourseIdByName(context.getPackageName(), "drawable", "status_icon"))
 						.setLights(Color.BLUE, 500, 500).setContentIntent(contentIntent).setSound(soundUri, AudioManager.STREAM_NOTIFICATION)
 						.build();
 				
@@ -307,8 +311,8 @@ public class MultiMsgNotification //extends Activity
 						contentTitle);
 				_bigContentView.setTextViewText(Resources.getResourseIdByName(context.getPackageName(), "id", "bigcontentviewtime"),
 						item1.timeOfMsg);
-				_bigContentView.setImageViewResource(Resources.getResourseIdByName(context.getPackageName(), "id", "bigcontentviewsmalllogo"),
-						Resources.getResourseIdByName(context.getPackageName(), "drawable", "status_icon24"));
+//				_bigContentView.setImageViewResource(Resources.getResourseIdByName(context.getPackageName(), "id", "bigcontentviewsmalllogo"),
+//						Resources.getResourseIdByName(context.getPackageName(), "drawable", "status_icon24"));
 				
 				_bigContentView.removeAllViews(Resources.getResourseIdByName(context.getPackageName(), "id", "bigcontentviewtext"));
 				for (int i=item1.msgList.size()-1;i>=0;i--)
@@ -325,8 +329,8 @@ public class MultiMsgNotification //extends Activity
 				
 				_notification = new NotificationCompat.Builder(context).setTicker(tickerText).setContentTitle(item1.contentTitle)
 						.setContentText(nbTotalMsg+" new messages")
-						.setLargeIcon(largeicon)
-						.setSmallIcon(Resources.getResourseIdByName(context.getPackageName(), "drawable", "status_icon24"))
+						//.setLargeIcon(largeIcon)
+						.setSmallIcon(Resources.getResourseIdByName(context.getPackageName(), "drawable", "status_icon"))
 						.setLights(Color.BLUE, 500, 500).setContentIntent(contentIntent).setSound(soundUri, AudioManager.STREAM_NOTIFICATION)
 						.build();
 				
@@ -372,13 +376,13 @@ public class MultiMsgNotification //extends Activity
 					nbTotalMsg+" new HelloPop messages");
 			_bigContentView.setTextViewText(Resources.getResourseIdByName(context.getPackageName(), "id", "bigcontentviewtime"),
 					item[1].timeOfMsg);
-			_bigContentView.setImageViewResource(Resources.getResourseIdByName(context.getPackageName(), "id", "bigcontentviewsmalllogo"),
-					Resources.getResourseIdByName(context.getPackageName(), "drawable", "status_icon24"));
+//			_bigContentView.setImageViewResource(Resources.getResourseIdByName(context.getPackageName(), "id", "bigcontentviewsmalllogo"),
+//					Resources.getResourseIdByName(context.getPackageName(), "drawable", "status_icon24"));
 		
 			_notification = new NotificationCompat.Builder(context).setTicker(tickerText).setContentTitle(nbTotalMsg+" new HelloPop messages")
 					.setContentText(nbTotalChat+" new chats")
-					.setLargeIcon(largeicon)
-					.setSmallIcon(Resources.getResourseIdByName(context.getPackageName(), "drawable", "status_icon24"))
+					//.setLargeIcon(largeIcon)
+					.setSmallIcon(Resources.getResourseIdByName(context.getPackageName(), "drawable", "status_icon"))
 					.setLights(Color.BLUE, 500, 500).setContentIntent(contentIntent).setSound(soundUri, AudioManager.STREAM_NOTIFICATION)
 					.build();
 			

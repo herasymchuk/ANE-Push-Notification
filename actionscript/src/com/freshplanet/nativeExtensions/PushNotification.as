@@ -4,9 +4,10 @@ package com.freshplanet.nativeExtensions
 	import flash.events.StatusEvent;
 	import flash.external.ExtensionContext;
 	import flash.system.Capabilities;
+	import flash.events.DataEvent;
 
-    
-    public class PushNotification extends EventDispatcher 
+
+    public class PushNotification extends EventDispatcher
 	{  
 	
 		public static const RECURRENCE_NONE:int   = 0;
@@ -91,16 +92,16 @@ package com.freshplanet.nativeExtensions
 		 * @param recurrenceType
 		 * 
 		 */
-		public function sendLocalNotification(message:String, timestamp:int, title:String, recurrenceType:int = RECURRENCE_NONE,  notificationId:int = DEFAULT_LOCAL_NOTIFICATION_ID):void
+		public function sendLocalNotification(message:String, timestamp:int, title:String, recurrenceType:int = RECURRENCE_NONE, params:String="",  notificationId:int = DEFAULT_LOCAL_NOTIFICATION_ID):void
 		{
 			if (this.isPushNotificationSupported)
 			{
 				if (notificationId == DEFAULT_LOCAL_NOTIFICATION_ID)
        			{
-           			extCtx.call("sendLocalNotification", message, timestamp, title, recurrenceType);
+           			extCtx.call("sendLocalNotification", message, timestamp, title, recurrenceType, params);
          		} else
          		{
-           			extCtx.call("sendLocalNotification", message, timestamp, title, recurrenceType, notificationId);
+           			extCtx.call("sendLocalNotification", message, timestamp, title, recurrenceType, params, notificationId);
          		}
 			}
 		}
@@ -146,6 +147,7 @@ package com.freshplanet.nativeExtensions
         //
         private function onStatus(e:StatusEvent):void 
 		{
+			dispatchEvent(new DataEvent(DataEvent.DATA, true, false, e.code));
 			if (this.isPushNotificationSupported)
 			{
 				var event : PushNotificationEvent;

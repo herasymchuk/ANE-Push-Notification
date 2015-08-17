@@ -1,0 +1,55 @@
+"data":{
+	"message":"test message",
+	"tickerText":"hivve text message",
+	"contentTitle":"content title 4",
+	"contentText":"content body 4",
+	"vibrate":false,
+	"sound":"none",
+	"data":{
+		"id":1425852415,
+		"par1":"0",
+		"par2":"0",
+		"par3":"0",
+		"par4":"0"
+	}
+}
+
+1) нотификейшины должны приходить в Foreground, Background, closed app состояниях (скорее всего для фореграунда придется использовать локальные) +
+2) при выборе нотификейшина должна запускать/активироваться апликуха и в апликуху передаваться дата с нотификейшины (payload) +
+3) Нотификейшины должны отображать больше 1 строки (например макс. кол = 5) (Сейчас не работает для Android) 
+4) Если пользователь активировал/запустил апликуху с помощью нотификейшина, остальные нотификейшины должны оставаться (сейчас не работает для IOS)
+5) Если найдешь как (я не нашел как), нужно обновлять/объединять нотификейшины с нескольких в один) + 
+
+layout на подобии этого, только без смайлика в левом нижнем углу- http://developer.android.com/design/media/new_notifications.png
+icon - https://drive.google.com/folderview?id=0B2gMy7r9kedUfnVwcTBhZXRoOXVuWndfUXBrZjc2SnJHTm9FUzB3ejJTSVhDc0RCRHNGT1U&usp=sharing
+
+правила для замены нотификейшина. по параметрам "pushId" и "repType" (0/1/2):
+1) repType == 0 || repType == null -> создаем новый, старый остается
+2) repType == 1 -> старый заменяем новым
+3) repType == 2 -> изменяем новый(обьеденяем body/alert) и заменяем им старый нотиф
+
+{
+    "tickerText": "hivve text message",
+    "contentTitle": "content title 4",
+    "contentText": "content body 44444444444444444444444 4444444444444444444444444 6666666666666666666666666666666  666666666666666666666666666666666666        666666666666666666666666666666666666",
+    "vibrate": "true",
+    "sound": "true",
+	"notificationId": "10",
+    "id": "1425852415",
+	"repType": "0"
+	"pushId": "100",
+    "par1": "0",
+    "par2": "0",
+    "par3": "0",
+    "par4": "0"
+}
+
+{ "collapse_key": "score_update",
+  "time_to_live": 108,
+  "delay_while_idle": true,
+  "data": {
+    "score": "4x8",
+    "time": "15:16.2342"
+  },
+  "registration_ids":["4", "8", "15", "16", "23", "42"]
+}

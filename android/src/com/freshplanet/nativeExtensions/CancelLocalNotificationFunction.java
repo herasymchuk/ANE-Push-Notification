@@ -14,14 +14,8 @@ import com.adobe.fre.FREWrongThreadException;
 
 public class CancelLocalNotificationFunction implements FREFunction {
 
-	public CancelLocalNotificationFunction() {
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public FREObject call(FREContext arg0, FREObject[] arg1) {
-		// TODO Auto-generated method stub
-		
 		Context appContext = arg0.getActivity().getApplicationContext();
 		Intent intent = new Intent(appContext, LocalBroadcastReceiver.class);
 		
@@ -42,7 +36,7 @@ public class CancelLocalNotificationFunction implements FREFunction {
 		}
 
 		PendingIntent sender = PendingIntent.getBroadcast(appContext, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		// Get the AlarmManager service
+
 		AlarmManager am = (AlarmManager) appContext.getSystemService(Context.ALARM_SERVICE);
 		am.cancel(sender);
 

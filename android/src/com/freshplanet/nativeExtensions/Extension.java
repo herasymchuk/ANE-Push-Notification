@@ -33,8 +33,8 @@ public class Extension implements FREExtension {
 	private static String TAG = "AirPushNotification";
 
 	public static FREContext context;
-	
-	public static boolean isInForeground = false;
+
+	public static boolean isInForeground;
 	
 	public FREContext createContext(String extId)
 	{
@@ -67,6 +67,7 @@ public class Extension implements FREExtension {
 		{
 			for (String key : bundle.keySet())
 			{
+				Log.d(TAG, "getParametersFromIntent key:" + key + " : " + key.getClass());
 				paramsJson.put(key, bundle.getString(key));
 			}
 			

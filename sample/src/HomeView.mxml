@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+        creationComplete="onAddedToStage(event)"
+    activate="activateHandler(event)"
+    deactivate="deactivateHandler(event)">
+    <s:TextArea id="log" width="100%" height="2048" />
+    <fx:Script><![CDATA[
+        import com.freshplanet.nativeExtensions.PushNotification;
+        import com.freshplanet.nativeExtensions.PushNotificationEvent;
+
+        import mx.events.FlexEvent;
+
+        private const SERVER_URL:String = "http://192.168.1.51:8081";
+
+        private var firstTime:Boolean;
+        private function onAddedToStage(event:FlexEvent):void {
+            log.text = "register with id: " + "682388843453";
+            PushNotification.getInstance().registerForPushNotification("682388843453");
+            if(!firstTime) {
+                PushNotification.getInstance().registerForPushNotification();
+                log.text = "register";
+                firstTime = true;
+            }
+            PushNotification.getInstance().addEventListener(PushNotificationEvent.PERMISSION_GIVEN_WITH_TOKEN_EVENT, onPushNotificationToken);
+
+            /** App was in foreground when receiving push notification */
+            PushNotification.getInstance().addEventListener(PushNotificationEvent.NOTIFICATION_RECEIVED_WHEN_IN_FOREGROUND_EVENT, traceEvent);
+
+            /** App was in background and awoken by iOS when receiving the push notification (background fetch on iOS 7+) */
+            PushNotification.getInstance().addEventListener(PushNotificationEvent.APP_STARTED_IN_BACKGROUND_FROM_NOTIFICATION_EVENT, traceEvent);
+
+            /** App was in background when clicking on the push notification*/
+            PushNotification.getInstance().addEventListener(PushNotificationEvent.APP_BROUGHT_TO_FOREGROUND_FROM_NOTIFICATION_EVENT, traceEvent);
+
+            /** App is launched (for the first time) when clicking on the push notification */
+            PushNotification.getInstance().addEventListener(PushNotificationEvent.APP_STARTING_FROM_NOTIFICATION_EVENT, traceEvent);
+
+
+            PushNotification.getInstance().addEventListener(PushNotificationEvent.COMING_FROM_NOTIFICATION_EVENT, traceEvent);
+
+            //PushNotification.getInstance().addEventListener(PushNotificationEvent.APP_STARTING_FROM_NOTIFICATION_EVENT, traceEvent);
+            PushNotification.getInstance().addListenerForStarterNotifications(traceEvent);
+
+            PushNotification.getInstance().addEventListener(DataEvent.DATA, onStatusEvent);
+
+            function onPushNotificationToken(event:PushNotificationEvent):void {
+                log.text += "My push token is: " + event.token;
+                var loader:URLLoader = new URLLoader();
+                loader.dataFormat = URLLoaderDataFormat.TEXT;
+                loader.addEventListener(Event.COMPLETE, onRegisterComplete);
+                loader.addEventListener(IOErrorEvent.IO_ERROR, onRegisterError);
+                var req:URLRequest = new URLRequest();
+                req.method = URLRequestMethod.POST;
+                req.url = SERVER_URL + "/register";
+                var requestVars:URLVariables = new URLVariables();
+                requestVars.regId = event.token;
+                req.data = requestVars;
+                loader.load(req);
+            }
+        }
+
+        private function onStatusEvent(event:DataEvent):void {
+            log.text += "\n" + event.type + ":" + event.data + "\n\n";
+        }
+
+        private function traceEvent(event:PushNotificationEvent):void {
+            log.text += "\n" + event.type + ":" + traceObject(event.parameters) + "\n\n";
+            if (event.type == PushNotificationEvent.NOTIFICATION_RECEIVED_WHEN_IN_FOREGROUND_EVENT) {
+                log.text += "Send local notification \n";
+                PushNotification.getInstance().sendLocalNotification("Local notif message", new Date().time / 1000 + 10, "Local notif title", 0, JSON.stringify(event.parameters))
+            }
+        }
+
+        private function onRegisterComplete(event:Event):void {
+            log.text += "\n onRegisterComplete";
+        }
+
+        private function onRegisterError(event:IOErrorEvent):void {
+            log.text += "\n onRegisterError";
+        }
+
+        private function onNotificationReceivedStartingTheApp(...params):void {
+            log.text += "\n onNotificationReceivedStartingTheApp: " + traceObject(params);
+        }
+
+        private function traceObject(o:Object):String {
+            var res:String = '\n';
+            for (var val:* in o) {
+                res += '   [' + typeof(o[val]) + '] ' + val + ' => ' + o[val];
+            }
+            res += '\n';
+            return res;
+        }
+
+        private function activateHandler(event:Event):void {
+            log.text += "\n ACTIVATE APP \n";
+            PushNotification.getInstance().setIsAppInForeground(true);
+            //PushNotification.getInstance().addListenerForStarterNotifications(traceEvent);
+        }
+
+        private function deactivateHandler(event:Event):void {
+            log.text += "\n\n DEACTIVATE APP \n\n";
+            PushNotification.getInstance().setIsAppInForeground(false);
+        }
+        ]]></fx:Script>
+</s:View>

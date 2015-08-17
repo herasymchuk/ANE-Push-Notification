@@ -18,44 +18,32 @@
 
 package com.freshplanet.nativeExtensions;
 
-import android.util.Log;
-
-import com.adobe.fre.FREContext;
-import com.adobe.fre.FREFunction;
-import com.adobe.fre.FREInvalidObjectException;
-import com.adobe.fre.FREObject;
-import com.adobe.fre.FRETypeMismatchException;
-import com.adobe.fre.FREWrongThreadException;
+import com.adobe.fre.*;
 
 public class SetIsAppInForegroundFunction implements FREFunction {
 
-	public FREObject call(FREContext arg0, FREObject[] arg1) {
+    public FREObject call(FREContext freContext, FREObject[] arg1) {
 
-		boolean isInForeground;
-		try {
-			isInForeground = arg1[0].getAsBool();
-			if(isInForeground)
-			{
-				MultiMsgNotification msg = MultiMsgNotification.Instance(arg0.getActivity());
-				msg.remove();
-			}
-		} catch (IllegalStateException e) {
-			e.printStackTrace();
-			return null;
-		} catch (FRETypeMismatchException e) {
-			e.printStackTrace();
-			return null;
-		} catch (FREInvalidObjectException e) {
-			e.printStackTrace();
-			return null;
-		} catch (FREWrongThreadException e) {
-			e.printStackTrace();
-			return null;
-		}
-		
-		Extension.isInForeground = isInForeground;
+        boolean isInForeground;
+        try {
+            isInForeground = arg1[0].getAsBool();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            return null;
+        } catch (FRETypeMismatchException e) {
+            e.printStackTrace();
+            return null;
+        } catch (FREInvalidObjectException e) {
+            e.printStackTrace();
+            return null;
+        } catch (FREWrongThreadException e) {
+            e.printStackTrace();
+            return null;
+        }
 
-		return null;
-	}
+        Extension.isInForeground = isInForeground;
+
+        return null;
+    }
 
 }

@@ -1,3 +1,4 @@
+
 //////////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright 2012 Freshplanet (http://freshplanet.com | opensource@freshplanet.com)
@@ -44,4 +45,7 @@ void AirPushExtFinalizer(void *extData);
 
 void didRegisterForRemoteNotificationsWithDeviceToken(id self, SEL _cmd, UIApplication* application, NSData* deviceToken);
 void didFailToRegisterForRemoteNotificationsWithError(id self, SEL _cmd, UIApplication* application, NSError* error);
-void didReceiveRemoteNotification(id self, SEL _cmd, UIApplication* application,NSDictionary *userInfo);
+void didReceiveRemoteNotification(id self, SEL _cmd, UIApplication* application, NSDictionary *userInfo);
+//void didReceiveRemoteNotification(id self, SEL _cmd, UIApplication* application, NSDictionary *userInfo, id handler);
+void didReceiveLocalNotification(id self, SEL _cmd, UIApplication* application, UILocalNotification *notification);
+

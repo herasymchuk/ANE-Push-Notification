@@ -3,7 +3,13 @@ package com.freshplanet.nativeExtensions;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Timestamp;
+import java.util.Date;
 
+import android.os.Vibrator;
+import android.support.v4.app.NotificationCompat;
+import android.text.format.DateFormat;
+import android.util.Log;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -18,7 +24,6 @@ import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v4.app.NotificationCompat;
 
 import com.distriqt.extension.util.Resources;
 
@@ -116,16 +121,34 @@ public class CreateNotificationTask extends AsyncTask<Void, Void, Boolean>
 			Extension.log("Couldn't create push notification: _context or _intent was null (CreateNotificationTask.onPostExecute)");
 			return;
 		}
-		
+
 		// Notification texts
 		CharSequence contentTitle = _intent.getStringExtra("contentTitle");
-		if (contentTitle.length() > 22)
+		if (contentTitle != null && contentTitle.length() > 22)
 		{
 			contentTitle = contentTitle.subSequence(0, 20) + "...";
 		}
+
 		CharSequence contentText = _intent.getStringExtra("contentText");
 		CharSequence tickerText = _intent.getStringExtra("tickerText");
-		
+
+		Integer nID = -1;
+		if (_intent.hasExtra("pushId")){
+			nID = Integer.parseInt(_intent.getStringExtra("pushId"));
+		}
+
+		String rType = "";
+		if (_intent.hasExtra("repType")){
+			rType = _intent.getStringExtra("repType");
+		}
+
+		if(rType.equals("0")) {
+			nID = NOTIFICATION_ID;
+			NOTIFICATION_ID++;
+		}
+
+		Log.d("!!!!!!!!!!!!!!!!!!!!!!!!!!", "Send notif with id: " + nID.toString() + " rType: " +  rType);
+
 		// Notification images
 		int smallIconId = Resources.getResourseIdByName(_context.getPackageName(), "drawable", "status_icon");
 		int largeIconId = Resources.getResourseIdByName(_context.getPackageName(), "drawable", "app_icon");
@@ -141,28 +164,67 @@ public class CreateNotificationTask extends AsyncTask<Void, Void, Boolean>
 		
 		// Notification sound
 		Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+		Boolean withSound = !_intent.getStringExtra("sound").equals("none");
+		Boolean withVibration = Boolean.valueOf(_intent.getStringExtra("vibrate"));
 		
 		// Notification action
 		Intent notificationIntent = new Intent(_context, NotificationActivity.class);;
 		notificationIntent.putExtra("params", Extension.getParametersFromIntent(_intent));
+		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+				Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent contentIntent = PendingIntent.getActivity(_context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+//		RemoteViews _contentView = new RemoteViews(_context.getPackageName(), Resources.getResourseIdByName(_context.getPackageName(),
+//				"layout", "contentview"));
+//		_contentView.setTextViewText(Resources.getResourseIdByName(_context.getPackageName(), "id", "contentviewtext"),
+//				contentText);
+//		_contentView.setTextViewText(Resources.getResourseIdByName(_context.getPackageName(), "id", "contentviewtitle"),
+//				contentTitle);
+//		_contentView.setTextViewText(Resources.getResourseIdByName(_context.getPackageName(), "id", "contentviewtime"),
+//				getTimeFromMessage(_intent));
+//		_contentView.setImageViewResource(Resources.getResourseIdByName(_context.getPackageName(), "id", "contentviewsmalllogo"),
+//				smallIconId);
+
 		// Create notification
-		Notification notification = new NotificationCompat.Builder(_context)
-			.setContentTitle(contentTitle)
-			.setContentText(contentText)
-			.setTicker(tickerText)
-			.setSmallIcon(smallIconId)
-			.setLargeIcon(largeIcon)
-			.setSound(soundUri, AudioManager.STREAM_NOTIFICATION)
-			.setWhen(System.currentTimeMillis())
-			.setAutoCancel(true)
-			.setContentIntent(contentIntent)
-			.build();
-		
-		// Dispatch notification
-		NotificationManager notifManager = (NotificationManager)_context.getSystemService(Context.NOTIFICATION_SERVICE);
-		notifManager.notify(NOTIFICATION_ID, notification);
-		NOTIFICATION_ID++;
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(_context)
+				.setContentTitle(contentTitle)
+				.setContentText(contentText)
+				.setSmallIcon(smallIconId)
+				.setLargeIcon(largeIcon)
+				.setTicker(tickerText)
+				.setWhen(System.currentTimeMillis())
+				.setAutoCancel(true)
+				//.setContent(_contentView)
+				.setContentIntent(contentIntent);
+
+		if(withSound) {
+			builder.setSound(soundUri, AudioManager.STREAM_NOTIFICATION);
+		}
+		if(withVibration) {
+			Vibrator v = (Vibrator) _context.getSystemService(Context.VIBRATOR_SERVICE);
+			v.vibrate(100);
+			//builder.setVibrate(new long[] {1000, 1000, 1000});
+		}
+
+		Notification notification = builder.build();
+		NotificationManager notificationManager = (NotificationManager)_context.getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.notify(nID, notification);
+	}
+
+	private String getTimeFromMessage(Intent intent)
+	{
+		String when = "";
+		if (intent.hasExtra("sentAt"))
+		{
+			String timeString = intent.getStringExtra("sentAt");
+			double timeValue = Double.parseDouble(timeString) * 1000;
+			Timestamp timeStamp = new Timestamp((long) timeValue);
+			Date date = new Date(timeStamp.getTime());
+			when = DateFormat.format("h:mmaa", date).toString();
+		} else
+		{
+			when = (String) DateFormat.format("h:mmaa", new Date());
+		}
+		return when;
 	}
 }

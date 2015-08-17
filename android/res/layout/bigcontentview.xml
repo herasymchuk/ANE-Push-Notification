@@ -50,13 +50,13 @@
         android:layout_marginRight="5dp"
         android:layout_marginTop="12dp" />
 
-    <ImageView
+    <!--ImageView
         android:id="@+id/bigcontentviewsmalllogo"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginTop="5dp"
         android:layout_marginRight="5dp"
         android:layout_below="@id/bigcontentviewtime"
-        android:layout_alignParentRight="true" />
+        android:layout_alignParentRight="true" /-->
 
 </RelativeLayout>

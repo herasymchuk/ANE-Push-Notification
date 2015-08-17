@@ -22,12 +22,11 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
+import com.trembit.extension.NotificationManager;
 
 public class C2DMBroadcastReceiver extends BroadcastReceiver
-{	
-	public static final boolean USE_MULTI_MSG = false;
-	
-	public C2DMBroadcastReceiver() {}
+{
 	
 	/**
 	 * When a cd2m intent is received by the device.
@@ -85,19 +84,11 @@ public class C2DMBroadcastReceiver extends BroadcastReceiver
 			String params = Extension.getParametersFromIntent(intent);
 			
 			Extension.log("Received push notification with parameters: " + params);
-			
 			// Build the notification if the app is not in foreground, otherwise just dispatch an event
 			if (!Extension.isInForeground)
 			{
-				if (USE_MULTI_MSG && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
-				{
-					MultiMsgNotification msg = MultiMsgNotification.Instance(context);
-					msg.makeBigNotif(context, intent);
-				}
-				else
-				{
-					new CreateNotificationTask(context, intent).execute();
-				}
+				NotificationManager.getInstance().showNotification(context, intent);
+				Extension.context.dispatchStatusEventAsync("APP_STARTED_IN_BACKGROUND_FROM_NOTIFICATION", params);
 			}
 			else if (Extension.context != null)
 			{

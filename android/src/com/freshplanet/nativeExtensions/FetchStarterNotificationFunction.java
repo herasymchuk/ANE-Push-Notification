@@ -10,7 +10,6 @@ public class FetchStarterNotificationFunction implements FREFunction {
 
 	private static String TAG = "NotifActivity";
 
-	
 	@Override
 	public FREObject call(FREContext arg0, FREObject[] arg1) {
 		if(NotificationActivity.isComingFromNotification == null) {

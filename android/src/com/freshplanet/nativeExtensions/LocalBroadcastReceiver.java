@@ -21,6 +21,7 @@ package com.freshplanet.nativeExtensions;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import com.trembit.extension.NotificationManager;
 
 public class LocalBroadcastReceiver extends BroadcastReceiver
 {
@@ -32,16 +33,8 @@ public class LocalBroadcastReceiver extends BroadcastReceiver
 			String params = Extension.getParametersFromIntent(intent);
 			
 			Extension.log("Received local notification with parameters: " + params);
-			
-			// Build the notification if the app is not in foreground, otherwise just dispatch an event
-			if (!Extension.isInForeground)
-			{
-				new CreateNotificationTask(context, intent).execute();
-			}
-			else if (Extension.context != null)
-			{
-				Extension.context.dispatchStatusEventAsync("NOTIFICATION_RECEIVED_WHEN_IN_FOREGROUND", params);
-			}
+
+			NotificationManager.getInstance().showNotification(context, intent);
 		}
 		catch (Exception e)
 		{

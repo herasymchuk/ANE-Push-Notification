@@ -16,21 +16,12 @@ public class NotificationActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
-		Log.d(TAG, "create notif activity");
+		Log.d(TAG, "LocalNotificationService");
 
 		
 		isComingFromNotification = false;
 		
 		Bundle values = this.getIntent().getExtras();
-		
-		if (C2DMBroadcastReceiver.USE_MULTI_MSG && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) 
-		{
-			if (values.getString("allclean").equals("true"))
-				{
-					MultiMsgNotification msg = MultiMsgNotification.Instance(this);
-					msg.remove();
-				}
-		}
 
 		if (values.getString("params") != null)
 		{
