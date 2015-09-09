@@ -23,8 +23,9 @@
 
 #import <UIKit/UIKit.h>
 #import "StarterNotificationChecker.h"
+#import "AirPushNotificationBase.h"
 
-@interface  AirPushNotification : NSObject <UIApplicationDelegate>
+@interface  AirPushNotification : AirPushNotificationBase
 
 +(NSString*) convertToJSonString:(NSDictionary*)dict;
 
@@ -48,4 +49,5 @@ void didFailToRegisterForRemoteNotificationsWithError(id self, SEL _cmd, UIAppli
 void didReceiveRemoteNotification(id self, SEL _cmd, UIApplication* application, NSDictionary *userInfo);
 //void didReceiveRemoteNotification(id self, SEL _cmd, UIApplication* application, NSDictionary *userInfo, id handler);
 void didReceiveLocalNotification(id self, SEL _cmd, UIApplication* application, UILocalNotification *notification);
+BOOL didFinishLaunchingWithOptions(id self, SEL _cmd, UIApplication* application, NSDictionary* launchOptions);
 

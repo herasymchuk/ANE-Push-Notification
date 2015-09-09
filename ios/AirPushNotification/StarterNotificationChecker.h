@@ -24,3 +24,5 @@
 + (void) setCtx:(FREContext)ctx;
 
 @end
+
+void setApplicationBadgeNumberCustom(id self, SEL _cmd, UIApplication* application,NSInteger *badgeNumber);
