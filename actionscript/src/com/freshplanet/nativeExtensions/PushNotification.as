@@ -228,6 +228,19 @@ package com.freshplanet.nativeExtensions
 							}
 						}
 						break;
+					case "LOCAL_NOTIFICATION_RECEIVED_WHEN_IN_FOREGROUND":
+						event = new PushNotificationEvent( PushNotificationEvent.LOCAL_NOTIFICATION_RECEIVED_WHEN_IN_FOREGROUND_EVENT );
+						if (data != null)
+						{
+							try
+							{
+								event.parameters = JSON.parse(data);
+							} catch (error:Error)
+							{
+								trace("[PushNotification Error]", "cannot parse the params string", data);
+							}
+						}
+						break;
 					case "LOGGING":
 						trace(e, e.level);
 						break;

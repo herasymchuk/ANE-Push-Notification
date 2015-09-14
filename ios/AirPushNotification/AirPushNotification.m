@@ -117,8 +117,6 @@ void didFailToRegisterForRemoteNotificationsWithError(id self, SEL _cmd, UIAppli
 //custom implementations of empty signatures above. Used for push notification delegate implementation.
 void didReceiveRemoteNotification(id self, SEL _cmd, UIApplication* application,NSDictionary *userInfo)
 {
-//    NSInteger badgeNumber = [application applicationIconBadgeNumber];
-//    [application setApplicationIconBadgeNumber:++badgeNumber];
     if ( myCtx != nil )
     {
         
@@ -126,17 +124,14 @@ void didReceiveRemoteNotification(id self, SEL _cmd, UIApplication* application,
         NSLog(@"!!!!!!!!!!!!!!!!! didReceiveRemoteNotification %@  #Critical #System", stringInfo);
         if (application.applicationState == UIApplicationStateActive)
         {
-            NSLog(@"!!!!!!!!!!!!!!!!! didReceiveRemoteNotification UIApplicationStateActive #Critical #System");
             FREDispatchStatusEventAsync(myCtx, (uint8_t*)"NOTIFICATION_RECEIVED_WHEN_IN_FOREGROUND", (uint8_t*)[stringInfo UTF8String]);
         }
         else if (application.applicationState == UIApplicationStateInactive)
         {
-            NSLog(@"!!!!!!!!!!!!!!!!! didReceiveRemoteNotification UIApplicationStateInactive #Critical #System");
             FREDispatchStatusEventAsync(myCtx, (uint8_t*)"APP_BROUGHT_TO_FOREGROUND_FROM_NOTIFICATION", (uint8_t*)[stringInfo UTF8String]);
         }
         else if (application.applicationState == UIApplicationStateBackground)
         {
-            NSLog(@"!!!!!!!!!!!!!!!!! didReceiveRemoteNotification UIApplicationStateBackground #Critical #System");
             FREDispatchStatusEventAsync(myCtx, (uint8_t*)"APP_STARTED_IN_BACKGROUND_FROM_NOTIFICATION", (uint8_t*)[stringInfo UTF8String]);
         }
     }
@@ -155,11 +150,12 @@ void didReceiveLocalNotification(id self, SEL _cmd, UIApplication* application,U
             {
                 FREDispatchStatusEventAsync(myCtx, (uint8_t*)"APP_BROUGHT_TO_FOREGROUND_FROM_NOTIFICATION", (uint8_t*)[stringInfo UTF8String]);
             }
+            else
+            {
+                FREDispatchStatusEventAsync(myCtx, (uint8_t*)"LOCAL_NOTIFICATION_RECEIVED_WHEN_IN_FOREGROUND", (uint8_t*)[stringInfo UTF8String]);
+            }
         }
     }
-    //NSInteger badgeNumber = [application applicationIconBadgeNumber] + 3;
-    //[application setApplicationIconBadgeNumber:++badgeNumber];
-    //[application setApplicationIconBadgeNumber:badgeNumber];
 }
 
 
@@ -315,7 +311,6 @@ DEFINE_ANE_FUNCTION(sendLocalNotification)
 DEFINE_ANE_FUNCTION(cancelLocalNotification)
 {
     uint32_t localNotificationId;
-    NSLog(@"!!!!!!!!!!!!!!!!! cancelLocalNotification");
     if (argc == 1)
     {
         if (FREGetObjectAsUint32(argv[0], &localNotificationId) != FRE_OK)
